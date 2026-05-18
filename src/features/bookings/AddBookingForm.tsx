@@ -10,6 +10,7 @@ import type {
   PaymentStatus,
 } from '../../types/database'
 import { calculateRentalDays } from './bookingsApi'
+import { calculateBalance, parseMoney } from '../../lib/money'
 
 type AddBookingFormProps = {
   cars: Car[]
@@ -46,8 +47,10 @@ export function AddBookingForm({
     return calculateRentalDays(formData.pickup_date, formData.return_date)
   }, [formData.pickup_date, formData.return_date])
 
-  const totalAmount = rentalDays * Number(formData.daily_rate || 0)
-  const balance = totalAmount - Number(formData.down_payment || 0)
+  const dailyRate = parseMoney(formData.daily_rate)
+  const downPayment = parseMoney(formData.down_payment)
+  const totalAmount = parseMoney(rentalDays * dailyRate)
+  const balance = calculateBalance(totalAmount, downPayment)
 
   function updateField<K extends keyof BookingFormData>(
     key: K,
@@ -221,7 +224,10 @@ export function AddBookingForm({
 
                 <input
                   type="number"
+                  min="0"
+                  step="0.01"
                   value={formData.daily_rate}
+                  onWheel={(event) => event.currentTarget.blur()}
                   onChange={(event) =>
                     updateField('daily_rate', event.target.value)
                   }
@@ -236,7 +242,10 @@ export function AddBookingForm({
 
                 <input
                   type="number"
+                  min="0"
+                  step="0.01"
                   value={formData.down_payment}
+                  onWheel={(event) => event.currentTarget.blur()}
                   onChange={(event) =>
                     updateField('down_payment', event.target.value)
                   }

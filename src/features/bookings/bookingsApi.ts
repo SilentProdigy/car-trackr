@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabase'
 import { getCurrentBusiness } from '../../lib/business'
 import type { Booking, BookingFormData, BookingStatus } from '../../types/database'
 import { logActivity } from '../../lib/activityLog'
+import { calculateBalance, parseMoney } from '../../lib/money'
 
 export async function getBookings(): Promise<Booking[]> {
   const business = await getCurrentBusiness()
@@ -67,11 +68,28 @@ export async function createBooking(formData: BookingFormData) {
     throw new Error('This car is already booked within the selected date range.')
   }
 
-  const rentalDays = calculateRentalDays(formData.pickup_date, formData.return_date)
-  const dailyRate = Number(formData.daily_rate || 0)
-  const downPayment = Number(formData.down_payment || 0)
-  const totalAmount = rentalDays * dailyRate
-  const balance = totalAmount - downPayment
+const rentalDays = calculateRentalDays(
+  formData.pickup_date,
+  formData.return_date,
+)
+
+const dailyRate = parseMoney(formData.daily_rate)
+const downPayment = parseMoney(formData.down_payment)
+const totalAmount = parseMoney(rentalDays * dailyRate)
+
+if (dailyRate <= 0) {
+  throw new Error('Daily rate must be greater than 0.')
+}
+
+if (downPayment < 0) {
+  throw new Error('Down payment cannot be negative.')
+}
+
+if (downPayment > totalAmount) {
+  throw new Error('Down payment cannot be greater than total amount.')
+}
+
+const balance = calculateBalance(totalAmount, downPayment)
 
   const payload = {
     business_id: business.id,

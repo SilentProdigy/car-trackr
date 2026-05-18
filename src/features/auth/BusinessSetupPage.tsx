@@ -1,42 +1,16 @@
-import { useState, useEffect } from 'react'
-import type { SubmitEventHandler } from 'react'
+import { useEffect, useState } from 'react'
+import type React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { AppLogo } from '../../components/ui/AppLogo'
 import { FormInput } from '../../components/ui/FormInput'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import { supabase } from '../../lib/supabase'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getCurrentBusiness } from '../../lib/business'
-import { AppLogo } from '../../components/ui/AppLogo'
 
 export function BusinessSetupPage() {
   const navigate = useNavigate()
-
   const queryClient = useQueryClient()
-
-  const { data: existingBusiness, isLoading: businessLoading } = useQuery({
-    queryKey: ['current-business'],
-    queryFn: getCurrentBusiness,
-    retry: false,
-  })
-
-  if (businessLoading) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f6f8f7]">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#d7e5dd] border-t-[#1f3d32]" />
-          <p className="text-sm font-semibold text-[#1f3d32]">
-            Checking business setup...
-          </p>
-        </div>
-      </main>
-    )
-  }
-
-  useEffect(() => {
-    if (existingBusiness) {
-      navigate('/dashboard', { replace: true })
-    }
-  }, [existingBusiness, navigate])
 
   const [businessName, setBusinessName] = useState('')
   const [phone, setPhone] = useState('')
@@ -45,8 +19,31 @@ export function BusinessSetupPage() {
   const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleCreateBusiness: SubmitEventHandler<HTMLFormElement> = async (event) => {
+  const {
+    data: existingBusiness,
+    isLoading: businessLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['current-business'],
+    queryFn: getCurrentBusiness,
+    retry: false,
+  })
+
+  useEffect(() => {
+    if (existingBusiness) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [existingBusiness, navigate])
+
+  async function handleCreateBusiness(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault()
+
+    if (!businessName.trim()) {
+      setErrorMessage('Business name is required.')
+      return
+    }
 
     setErrorMessage('')
     setLoading(true)
@@ -65,9 +62,9 @@ export function BusinessSetupPage() {
     const { error } = await supabase.from('businesses').insert({
       owner_id: user.id,
       business_name: businessName,
-      phone,
-      email,
-      address,
+      phone: phone || null,
+      email: email || null,
+      address: address || null,
     })
 
     setLoading(false)
@@ -84,22 +81,44 @@ export function BusinessSetupPage() {
     navigate('/dashboard', { replace: true })
   }
 
+  if (businessLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f6f8f7]">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#d7e5dd] border-t-[#1f3d32]" />
+          <p className="text-sm font-semibold text-[#1f3d32]">
+            Checking business setup...
+          </p>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen bg-[#f6f8f7] px-5 py-8">
       <div className="mx-auto w-full max-w-md">
-        <div className="mb-6">
-          <AppLogo size="md" showText={false} className="mb-5" />
+        <div className="mb-6 text-center">
+          <AppLogo size="lg" showText={false} className="mb-5" />
+
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#416b57]">
             Business Setup
           </p>
+
           <h1 className="mt-2 text-3xl font-bold text-[#10231c]">
             Add your rental business
           </h1>
+
           <p className="mt-2 text-sm text-gray-500">
-            This information will be used for your dashboard, bookings, reports,
-            and receipts.
+            Complete your business setup before accessing the dashboard and
+            other modules.
           </p>
         </div>
+
+        {isError && (
+          <div className="mb-4 rounded-2xl bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+            No business setup found yet. Please create your business profile.
+          </div>
+        )}
 
         <form
           onSubmit={handleCreateBusiness}

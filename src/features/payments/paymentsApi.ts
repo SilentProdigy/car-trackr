@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabase'
 import { getCurrentBusiness } from '../../lib/business'
 import type { Payment, PaymentFormData } from '../../types/database'
 import { logActivity } from '../../lib/activityLog'
+import { calculateBalance, parseMoney } from '../../lib/money'
 
 export async function getPayments(): Promise<Payment[]> {
   const business = await getCurrentBusiness()
@@ -47,7 +48,7 @@ export async function createPayment(
     throw new Error('Please select a booking.')
   }
 
-  const paymentAmount = Number(formData.amount || 0)
+  const paymentAmount = parseMoney(formData.amount)
 
   if (paymentAmount <= 0) {
     throw new Error('Payment amount must be greater than 0.')
@@ -83,9 +84,9 @@ export async function createPayment(
     throw error
   }
 
-  const newPaidAmount = Number(booking.down_payment || 0) + paymentAmount
-  const totalAmount = Number(booking.total_amount || 0)
-  const newBalance = Math.max(totalAmount - newPaidAmount, 0)
+  const newPaidAmount = parseMoney(Number(booking.down_payment || 0) + paymentAmount)
+  const totalAmount = parseMoney(booking.total_amount)
+  const newBalance = calculateBalance(totalAmount, newPaidAmount)
 
   let paymentStatus: 'unpaid' | 'partial' | 'paid' | 'refunded' = 'unpaid'
 
@@ -157,12 +158,12 @@ export async function deletePayment(paymentId: string) {
   })
 
   const newPaidAmount = Math.max(
-    Number(booking.down_payment || 0) - Number(payment.amount || 0),
+    parseMoney(booking.down_payment) - parseMoney(payment.amount),
     0,
   )
 
-  const totalAmount = Number(booking.total_amount || 0)
-  const newBalance = Math.max(totalAmount - newPaidAmount, 0)
+  const totalAmount = parseMoney(booking.total_amount)
+  const newBalance = calculateBalance(totalAmount, newPaidAmount)
 
   let paymentStatus: 'unpaid' | 'partial' | 'paid' | 'refunded' = 'unpaid'
 
