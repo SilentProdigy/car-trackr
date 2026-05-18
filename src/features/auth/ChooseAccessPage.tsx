@@ -2,6 +2,7 @@ import { Building2, ShieldCheck } from 'lucide-react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getUserAccessInfo } from './accessApi'
+import { AppLogo } from '../../components/ui/AppLogo'
 
 export function ChooseAccessPage() {
   const navigate = useNavigate()
@@ -65,9 +66,7 @@ export function ChooseAccessPage() {
     <main className="min-h-screen bg-[#f6f8f7] px-5 py-8">
       <div className="mx-auto w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-[#1f3d32] text-white">
-            <ShieldCheck size={30} />
-          </div>
+          <AppLogo size="lg" showText={false} className="mb-5" />
 
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#416b57]">
             Access Selection

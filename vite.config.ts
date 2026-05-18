@@ -11,11 +11,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Car Rental Business Tracker',
-        short_name: 'CarTrackr',
-        description: 'A mobile-first car rental business tracking system.',
+        name: 'Fleetrackr',
+        short_name: 'Fleetrackr',
+        description: 'Smart tracking for modern car rentals.',
         theme_color: '#1f3d32',
-        background_color: '#f6f8f7',
+        background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -31,7 +31,7 @@ export default defineConfig({
             type: 'image/png',
           },
         ],
-      },
+      }
     }),
   ],
 })

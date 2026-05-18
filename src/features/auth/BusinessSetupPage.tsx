@@ -6,6 +6,7 @@ import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import { supabase } from '../../lib/supabase'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getCurrentBusiness } from '../../lib/business'
+import { AppLogo } from '../../components/ui/AppLogo'
 
 export function BusinessSetupPage() {
   const navigate = useNavigate()
@@ -87,6 +88,7 @@ export function BusinessSetupPage() {
     <main className="min-h-screen bg-[#f6f8f7] px-5 py-8">
       <div className="mx-auto w-full max-w-md">
         <div className="mb-6">
+          <AppLogo size="md" showText={false} className="mb-5" />
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#416b57]">
             Business Setup
           </p>

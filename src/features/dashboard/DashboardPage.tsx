@@ -44,7 +44,7 @@ export function DashboardPage() {
         <div className="mt-1 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold">
-            {data?.business?.business_name ?? 'Car Rental Dashboard'}
+            {data?.business?.business_name ?? 'FleeTrackr Dashboard'}
             </h1>
             <p className="mt-1 text-sm opacity-80">
               Live overview of bookings, fleet, and cash flow.

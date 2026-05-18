@@ -43,7 +43,7 @@ export function LoginPage() {
   return (
     <AuthCard
       title="Welcome back"
-      subtitle="Login to manage your car rental business."
+      subtitle="Login to manage your modern car rental tracking system."
     >
       <form onSubmit={handleLogin} className="space-y-4">
         {errorMessage && (

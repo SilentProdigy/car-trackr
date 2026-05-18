@@ -59,7 +59,7 @@ export function RegisterPage() {
   return (
     <AuthCard
       title="Create account"
-      subtitle="Start tracking bookings, cars, payments, and reports."
+      subtitle="Start managing your fleet, bookings, customers, payments, and reports."
     >
       <form onSubmit={handleRegister} className="space-y-4">
         {errorMessage && (
