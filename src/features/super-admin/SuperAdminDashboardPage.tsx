@@ -108,6 +108,7 @@ export function SuperAdminDashboardPage() {
                 <AdminLink to="/admin/businesses" label="Manage Businesses" />
                 <AdminLink to="/admin/users" label="Manage User Profiles" />
                 <AdminLink to="/activity-logs" label="View Activity Logs" />
+                <AdminLink to="/dashboard" label="Go to Business Dashboard" />
               </div>
             </section>
           </>

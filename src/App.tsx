@@ -46,6 +46,8 @@ import { SuperAdminDashboardPage } from './features/super-admin/SuperAdminDashbo
 import { AdminBusinessesPage } from './features/super-admin/AdminBusinessesPage'
 import { AdminUsersPage } from './features/super-admin/AdminUsersPage'
 import { usePermissions } from './features/auth/usePermissions'
+import { ChooseAccessPage } from './features/auth/ChooseAccessPage'
+import { AppEntryRoute } from './routes/AppEntryRoute'
 
 function SettingsPage() {
 
@@ -207,7 +209,16 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<AppEntryRoute />} />
+
+        <Route
+          path="/choose-access"
+          element={
+            <ProtectedRoute>
+              <ChooseAccessPage />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/login"

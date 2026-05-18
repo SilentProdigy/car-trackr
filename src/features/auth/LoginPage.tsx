@@ -6,6 +6,8 @@ import { FormInput } from '../../components/ui/FormInput'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import { supabase } from '../../lib/supabase'
 
+import { getUserAccessInfo, resolveAccessRedirect } from './accessApi'
+
 export function LoginPage() {
   const navigate = useNavigate()
 
@@ -32,7 +34,10 @@ export function LoginPage() {
       return
     }
 
-    navigate('/dashboard')
+    const access = await getUserAccessInfo()
+    const redirectTo = resolveAccessRedirect(access)
+
+    navigate(redirectTo, { replace: true })
   }
 
   return (
