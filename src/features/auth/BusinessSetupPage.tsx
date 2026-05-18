@@ -1,12 +1,41 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { SubmitEventHandler } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FormInput } from '../../components/ui/FormInput'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'
 import { supabase } from '../../lib/supabase'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { getCurrentBusiness } from '../../lib/business'
 
 export function BusinessSetupPage() {
   const navigate = useNavigate()
+
+  const queryClient = useQueryClient()
+
+  const { data: existingBusiness, isLoading: businessLoading } = useQuery({
+    queryKey: ['current-business'],
+    queryFn: getCurrentBusiness,
+    retry: false,
+  })
+
+  if (businessLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f6f8f7]">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#d7e5dd] border-t-[#1f3d32]" />
+          <p className="text-sm font-semibold text-[#1f3d32]">
+            Checking business setup...
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  useEffect(() => {
+    if (existingBusiness) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [existingBusiness, navigate])
 
   const [businessName, setBusinessName] = useState('')
   const [phone, setPhone] = useState('')
@@ -47,7 +76,11 @@ export function BusinessSetupPage() {
       return
     }
 
-    navigate('/dashboard')
+    await queryClient.invalidateQueries({ queryKey: ['current-business'] })
+    await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    await queryClient.invalidateQueries({ queryKey: ['profile-settings'] })
+
+    navigate('/dashboard', { replace: true })
   }
 
   return (

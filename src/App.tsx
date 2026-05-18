@@ -18,6 +18,9 @@ import { ProfilePage } from './features/profile/ProfilePage'
 
 import { DashboardPage } from './features/dashboard/DashboardPage'
 
+import { TeamPage } from './features/team/TeamPage'
+import { ActivityLogsPage } from './features/activity/ActivityLogsPage'
+
 // import { useQuery } from '@tanstack/react-query'
 // import { getReportsData } from './features/reports/reportsApi'
 
@@ -36,6 +39,8 @@ import { ExpensesPage } from './features/expenses/ExpensesPage'
 import { MaintenancePage } from './features/maintenance/MaintenancePage'
 import { ReportsPage } from './features/reports/ReportsPage'
 
+import { BusinessRequiredRoute } from './routes/BusinessRequiredRoute'
+
 function SettingsPage() {
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -43,6 +48,21 @@ function SettingsPage() {
   }
 
   const menuItems = [
+    {
+      label: 'Profile Management',
+      description: 'Update owner profile and business details',
+      path: '/profile',
+    },
+    {
+      label: 'Team Management',
+      description: 'Manage staff roles and access',
+      path: '/team',
+    },
+    {
+      label: 'Activity Logs',
+      description: 'View audit trail and system changes',
+      path: '/activity-logs',
+    },
     {
       label: 'Customers',
       description: 'Manage renter profiles and documents',
@@ -62,11 +82,6 @@ function SettingsPage() {
       label: 'Maintenance',
       description: 'Track repairs and service schedules',
       path: '/maintenance',
-    },
-    {
-      label: 'Profile Management',
-      description: 'Update owner profile and business details',
-      path: '/profile',
     },
   ]
 
@@ -206,90 +221,108 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <DashboardPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/cars"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <CarsPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/profile"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <ProfilePage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/bookings"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <BookingsPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/customers"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <CustomersPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/payments"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <PaymentsPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/expenses"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <ExpensesPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/maintenance"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <MaintenancePage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/reports"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <ReportsPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
+          }
+        />
+        
+        <Route
+          path="/team"
+          element={
+            <BusinessRequiredRoute>
+              <TeamPage />
+            </BusinessRequiredRoute>
+          }
+        />
+
+        <Route
+          path="/activity-logs"
+          element={
+            <BusinessRequiredRoute>
+              <ActivityLogsPage />
+            </BusinessRequiredRoute>
           }
         />
 
         <Route
           path="/settings"
           element={
-            <ProtectedRoute>
+            <BusinessRequiredRoute>
               <SettingsPage />
-            </ProtectedRoute>
+            </BusinessRequiredRoute>
           }
         />
       </Routes>
