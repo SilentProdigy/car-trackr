@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import { getCurrentBusiness } from './business'
 
-export type BusinessRole = 'owner' | 'manager' | 'staff' | 'viewer' | 'none'
+export type BusinessRole = 'super_admin' | 'owner' | 'manager' | 'staff' | 'viewer' | 'none'
 
 export type PermissionSet = {
   role: BusinessRole
@@ -10,9 +10,28 @@ export type PermissionSet = {
   canManage: boolean
   canDelete: boolean
   canManageMembers: boolean
+  isSuperAdmin?: boolean
 }
 
 export async function getCurrentUserPermissions(): Promise<PermissionSet> {
+  const { data: isSuperAdminData, error: superAdminError } = await supabase.rpc('is_super_admin')
+
+  if (superAdminError) {
+    throw superAdminError
+  }
+
+  if (isSuperAdminData === true) {
+    return {
+      role: 'super_admin',
+      canView: true,
+      canWrite: true,
+      canManage: true,
+      canDelete: true,
+      canManageMembers: true,
+      isSuperAdmin: true,
+    }
+  }
+
   const business = await getCurrentBusiness()
 
   if (!business) {
@@ -23,6 +42,7 @@ export async function getCurrentUserPermissions(): Promise<PermissionSet> {
       canManage: false,
       canDelete: false,
       canManageMembers: false,
+      isSuperAdmin: false,
     }
   }
 
@@ -38,10 +58,11 @@ export async function getCurrentUserPermissions(): Promise<PermissionSet> {
 
   return {
     role,
-    canView: ['owner', 'manager', 'staff', 'viewer'].includes(role),
-    canWrite: ['owner', 'manager', 'staff'].includes(role),
-    canManage: ['owner', 'manager'].includes(role),
-    canDelete: ['owner', 'manager'].includes(role),
-    canManageMembers: role === 'owner',
+    canView: ['super_admin', 'owner', 'manager', 'staff', 'viewer'].includes(role),
+    canWrite: ['super_admin', 'owner', 'manager', 'staff'].includes(role),
+    canManage: ['super_admin', 'owner', 'manager'].includes(role),
+    canDelete: ['super_admin', 'owner', 'manager'].includes(role),
+    canManageMembers: role === 'owner' || role === 'super_admin',
+    isSuperAdmin: role === 'super_admin',
   }
 }

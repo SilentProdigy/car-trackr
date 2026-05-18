@@ -41,13 +41,31 @@ import { ReportsPage } from './features/reports/ReportsPage'
 
 import { BusinessRequiredRoute } from './routes/BusinessRequiredRoute'
 
+import { SuperAdminRoute } from './routes/SuperAdminRoute'
+import { SuperAdminDashboardPage } from './features/super-admin/SuperAdminDashboardPage'
+import { AdminBusinessesPage } from './features/super-admin/AdminBusinessesPage'
+import { AdminUsersPage } from './features/super-admin/AdminUsersPage'
+import { usePermissions } from './features/auth/usePermissions'
+
 function SettingsPage() {
+
   async function handleLogout() {
     await supabase.auth.signOut()
     window.location.href = '/login'
   }
 
+  const { data: permissions } = usePermissions()
+
   const menuItems = [
+     ...(permissions?.isSuperAdmin
+    ? [
+        {
+          label: 'Super Admin Panel',
+          description: 'Manage the entire application',
+          path: '/admin',
+        },
+      ]
+    : []),
     {
       label: 'Profile Management',
       description: 'Update owner profile and business details',
@@ -215,6 +233,33 @@ export default function App() {
             <ProtectedRoute>
               <BusinessSetupPage />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <SuperAdminRoute>
+              <SuperAdminDashboardPage />
+            </SuperAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/businesses"
+          element={
+            <SuperAdminRoute>
+              <AdminBusinessesPage />
+            </SuperAdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <SuperAdminRoute>
+              <AdminUsersPage />
+            </SuperAdminRoute>
           }
         />
 

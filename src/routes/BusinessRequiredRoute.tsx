@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getCurrentBusiness } from '../lib/business'
 import { useAuth } from '../features/auth/useAuth'
+import { usePermissions } from '../features/auth/usePermissions'
 
 type BusinessRequiredRouteProps = {
   children: ReactNode
@@ -12,7 +13,7 @@ export function BusinessRequiredRoute({
   children,
 }: BusinessRequiredRouteProps) {
   const { user, loading: authLoading } = useAuth()
-
+  const { data: permissions, isLoading: permissionsLoading } = usePermissions()
   const {
     data: business,
     isLoading: businessLoading,
@@ -24,7 +25,7 @@ export function BusinessRequiredRoute({
     retry: false,
   })
 
-  if (authLoading || businessLoading) {
+  if (authLoading || businessLoading || permissionsLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f6f8f7]">
         <div className="text-center">
@@ -45,5 +46,7 @@ export function BusinessRequiredRoute({
     return <Navigate to="/business-setup" replace />
   }
 
-  return children
+  if (permissions?.isSuperAdmin) {
+    return children
+  }
 }
