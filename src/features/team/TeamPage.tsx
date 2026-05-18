@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type React from 'react'
-import { Plus, ShieldCheck, UserRound } from 'lucide-react'
+import { ShieldCheck, UserRound } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { PrimaryButton } from '../../components/ui/PrimaryButton'

@@ -17,7 +17,6 @@ export function BookingCard({
   booking,
   onDelete,
   onUpdateStatus,
-  canEdit,
   canDelete
 }: BookingCardProps) {
   return (

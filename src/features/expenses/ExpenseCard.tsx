@@ -9,7 +9,7 @@ type ExpenseCardProps = {
   canDelete?: boolean
 }
 
-export function ExpenseCard({ expense, onDelete, canEdit, canDelete }: ExpenseCardProps) {
+export function ExpenseCard({ expense, onDelete, canDelete }: ExpenseCardProps) {
   return (
     <article className="rounded-[1.75rem] bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
