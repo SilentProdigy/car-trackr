@@ -8,6 +8,7 @@ import {
   updateBusinessStatus,
   updateBusinessVerification,
 } from './superAdminApi'
+import { ReasonModal } from '../../components/ui/ReasonModal'
 
 export function AdminBusinessesPage() {
   const queryClient = useQueryClient()
@@ -16,6 +17,11 @@ export function AdminBusinessesPage() {
     type: ToastType
     message: string
   } | null>(null)
+
+  const [businessToSuspend, setBusinessToSuspend] = useState<{
+    id: string
+    name: string
+    } | null>(null)
 
   const {
     data: businesses = [],
@@ -147,21 +153,16 @@ export function AdminBusinessesPage() {
                 </button>
               ) : (
                 <button
-                  type="button"
-                  onClick={() => {
-                    const reason = window.prompt(
-                      'Reason for suspending this business:',
-                    )
-
-                    statusMutation.mutate({
-                      businessId: business.id,
-                      status: 'suspended',
-                      reason: reason ?? 'Suspended by super admin.',
-                    })
-                  }}
-                  className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
-                >
-                  Suspend
+                    type="button"
+                    onClick={() =>
+                        setBusinessToSuspend({
+                        id: business.id,
+                        name: business.business_name,
+                        })
+                    }
+                    className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+                    >
+                    Suspend
                 </button>
               )}
             </div>
@@ -201,6 +202,38 @@ export function AdminBusinessesPage() {
           onClose={() => setToast(null)}
         />
       )}
+
+      <ReasonModal
+        open={Boolean(businessToSuspend)}
+        title="Suspend business?"
+        description={
+            businessToSuspend
+            ? `Provide a reason for suspending "${businessToSuspend.name}".`
+            : ''
+        }
+        label="Suspension reason"
+        placeholder="Example: Violation of platform rules, incomplete verification, suspicious activity..."
+        confirmLabel="Suspend Business"
+        cancelLabel="Cancel"
+        loading={statusMutation.isPending}
+        onClose={() => setBusinessToSuspend(null)}
+        onConfirm={(reason) => {
+            if (!businessToSuspend) return
+
+            statusMutation.mutate(
+            {
+                businessId: businessToSuspend.id,
+                status: 'suspended',
+                reason: reason || 'Suspended by super admin.',
+            },
+            {
+                onSuccess: () => {
+                setBusinessToSuspend(null)
+                },
+            },
+            )
+        }}
+        />
 
       <BottomNav />
     </main>
