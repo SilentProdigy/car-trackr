@@ -17,7 +17,6 @@ export function BusinessRequiredRoute({
   const {
     data: business,
     isLoading: businessLoading,
-    isError,
   } = useQuery({
     queryKey: ['current-business'],
     queryFn: getCurrentBusiness,
