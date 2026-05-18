@@ -17,10 +17,15 @@ export function AdminBusinessesPage() {
     message: string
   } | null>(null)
 
-  const { data: businesses = [], isLoading } = useQuery({
+  const {
+    data: businesses = [],
+    isLoading,
+    isError,
+    error,
+   } = useQuery({
     queryKey: ['admin-businesses'],
-    queryFn: getAdminBusinesses,
-  })
+    queryFn: getAdminBusinesses, 
+   })
 
   const statusMutation = useMutation({
     mutationFn: updateBusinessStatus,
@@ -162,6 +167,31 @@ export function AdminBusinessesPage() {
             </div>
           </article>
         ))}
+
+        {isError && (
+        <div className="rounded-3xl bg-red-50 p-5 text-red-700 shadow-sm">
+            <p className="text-sm font-bold">Failed to load businesses.</p>
+            <p className="mt-1 text-sm">
+            {error instanceof Error ? error.message : 'Unknown error'}
+            </p>
+        </div>
+        )}
+
+        {!isLoading && !isError && businesses.length === 0 && (
+        <div className="rounded-[2rem] bg-white p-6 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gray-100 text-[#111827]">
+            <Building2 size={30} />
+            </div>
+
+            <h2 className="text-lg font-bold text-[#10231c]">
+            No businesses found
+            </h2>
+
+            <p className="mt-2 text-sm text-gray-500">
+            Businesses will appear here after users complete business setup.
+            </p>
+        </div>
+        )}
       </section>
 
       {toast && (

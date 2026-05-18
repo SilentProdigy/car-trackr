@@ -87,21 +87,31 @@ export async function getAdminStats() {
 export async function getAdminBusinesses(): Promise<AdminBusiness[]> {
   const { data, error } = await supabase
     .from('businesses')
-    .select(
-      `
-      *,
-      profiles:owner_id (
-        id,
-        full_name,
-        role
-      )
-    `,
-    )
+    .select('*')
     .order('created_at', { ascending: false })
 
-  if (error) throw error
+  if (error) {
+    throw error
+  }
 
-  return data ?? []
+  const businesses = data ?? []
+
+  const ownerIds = businesses.map((business) => business.owner_id)
+
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, full_name, role')
+    .in('id', ownerIds)
+
+  if (profilesError) {
+    throw profilesError
+  }
+
+  return businesses.map((business) => ({
+    ...business,
+    profiles:
+      profiles?.find((profile) => profile.id === business.owner_id) ?? null,
+  }))
 }
 
 export async function getAdminProfiles(): Promise<AdminProfile[]> {
