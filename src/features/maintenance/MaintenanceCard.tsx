@@ -7,12 +7,16 @@ type MaintenanceCardProps = {
   record: Maintenance
   onDelete: (maintenanceId: string) => void
   onUpdateStatus: (maintenanceId: string, status: MaintenanceStatus) => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export function MaintenanceCard({
   record,
   onDelete,
   onUpdateStatus,
+  canEdit,
+  canDelete
 }: MaintenanceCardProps) {
   return (
     <article className="rounded-[1.75rem] bg-white p-5 shadow-sm">
@@ -98,14 +102,16 @@ export function MaintenanceCard({
         Created {new Date(record.created_at).toLocaleDateString()}
       </p>
 
-      <button
-        type="button"
-        onClick={() => onDelete(record.id)}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
-      >
-        <Trash2 size={16} />
-        Delete Maintenance
-      </button>
+      {canDelete && (
+        <button
+          type="button"
+          onClick={() => onDelete(record.id)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+        >
+          <Trash2 size={16} />
+          Delete Maintenance
+        </button>
+      )}
     </article>
   )
 }

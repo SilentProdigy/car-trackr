@@ -15,8 +15,12 @@ import {
   updateBookingStatus,
 } from './bookingsApi'
 
+import { usePermissions } from '../auth/usePermissions'
+
 export function BookingsPage() {
   const queryClient = useQueryClient()
+
+  const { data: permissions } = usePermissions()
 
   const [showAddForm, setShowAddForm] = useState(false)
   const [bookingToDelete, setBookingToDelete] = useState<string | null>(null)
@@ -116,15 +120,17 @@ export function BookingsPage() {
 
         <div className="mt-1 flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Bookings</h1>
-
-          <button
-            type="button"
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
-          >
-            <Plus size={18} />
-            Add
-          </button>
+          {permissions?.canWrite && (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
+            >
+              <Plus size={18} />
+              Add
+            </button>
+          )}
+          
         </div>
       </header>
 

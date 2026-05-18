@@ -6,9 +6,11 @@ type CarCardProps = {
   car: Car
   onDelete: (carId: string) => void
   onEdit: (car: Car) => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
-export function CarCard({ car, onDelete, onEdit }: CarCardProps) {
+export function CarCard({ car, onDelete, onEdit, canEdit, canDelete }: CarCardProps) {
   return (
     <article className="overflow-hidden rounded-[1.75rem] bg-white shadow-sm">
       <div className="h-40 bg-[#e8f0ec]">
@@ -87,23 +89,27 @@ export function CarCard({ car, onDelete, onEdit }: CarCardProps) {
           </p>
         )}
 
-        <button
-          type="button"
-          onClick={() => onEdit(car)}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#e8f0ec] px-4 py-3 text-sm font-bold text-[#1f3d32]"
-        >
-          <Pencil size={16} />
-          Edit Car
-        </button>
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => onEdit(car)}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#e8f0ec] px-4 py-3 text-sm font-bold text-[#1f3d32]"
+          >
+            <Pencil size={16} />
+            Edit Car
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => onDelete(car.id)}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
-        >
-          <Trash2 size={16} />
-          Delete Car
-        </button>
+        {canDelete && (
+          <button
+            type="button"
+            onClick={() => onDelete(car.id)}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+          >
+            <Trash2 size={16} />
+            Delete Car
+          </button>
+        )}
       </div>
     </article>
   )

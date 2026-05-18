@@ -5,9 +5,11 @@ import { SecureFileButton } from '../../components/ui/SecureFileButton'
 type PaymentCardProps = {
   payment: Payment
   onDelete: (paymentId: string) => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
-export function PaymentCard({ payment, onDelete }: PaymentCardProps) {
+export function PaymentCard({ payment, onDelete, canDelete }: PaymentCardProps) {
   return (
     <article className="rounded-[1.75rem] bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -53,14 +55,16 @@ export function PaymentCard({ payment, onDelete }: PaymentCardProps) {
         </p>
       )}
 
-      <button
-        type="button"
-        onClick={() => onDelete(payment.id)}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
-      >
-        <Trash2 size={16} />
-        Delete Payment
-      </button>
+      {canDelete && (
+        <button
+          type="button"
+          onClick={() => onDelete(payment.id)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+        >
+          <Trash2 size={16} />
+          Delete Payment
+        </button>
+      )}
     </article>
   )
 }

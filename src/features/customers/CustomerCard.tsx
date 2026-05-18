@@ -6,9 +6,11 @@ type CustomerCardProps = {
   customer: Customer
   onDelete: (customerId: string) => void
   onEdit: (customer: Customer) => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
-export function CustomerCard({ customer, onDelete, onEdit }: CustomerCardProps) {
+export function CustomerCard({ customer, onDelete, onEdit, canEdit, canDelete }: CustomerCardProps) {
   return (
     <article className="rounded-[1.75rem] bg-white p-5 shadow-sm">
       <div className="flex items-start gap-4">
@@ -90,24 +92,27 @@ export function CustomerCard({ customer, onDelete, onEdit }: CustomerCardProps) 
           {customer.notes}
         </p>
       )}
-
-      <button
-        type="button"
-        onClick={() => onEdit(customer)}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#e8f0ec] px-4 py-3 text-sm font-bold text-[#1f3d32]"
-      >
-        <Pencil size={16} />
-        Edit Customer
-      </button>
-
-      <button
-        type="button"
-        onClick={() => onDelete(customer.id)}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
-      >
-        <Trash2 size={16} />
-        Delete Customer
-      </button>
+      {canEdit && (
+        <button
+          type="button"
+          onClick={() => onEdit(customer)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#e8f0ec] px-4 py-3 text-sm font-bold text-[#1f3d32]"
+        >
+          <Pencil size={16} />
+          Edit Customer
+        </button>
+      )}
+      
+      {canDelete && (
+        <button
+          type="button"
+          onClick={() => onDelete(customer.id)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+        >
+          <Trash2 size={16} />
+          Delete Customer
+        </button>
+      )}
     </article>
   )
 }

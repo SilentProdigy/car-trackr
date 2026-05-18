@@ -8,10 +8,12 @@ import type { Car, CarFormData } from '../../types/database'
 import { BottomNav } from '../../components/layout/BottomNav'
 import { ConfirmModal } from '../../components/ui/ConfirmModal'
 import { Toast, type ToastType } from '../../components/ui/Toast'
+import { usePermissions } from '../auth/usePermissions'
 
 export function CarsPage() {
   const queryClient = useQueryClient()
   const [showAddForm, setShowAddForm] = useState(false)
+  const { data: permissions } = usePermissions()
 
   const [selectedCar, setSelectedCar] = useState<Car | null>(null)
   const [carToDelete, setCarToDelete] = useState<string | null>(null)
@@ -130,17 +132,19 @@ export function CarsPage() {
         <div className="mt-1 flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Cars</h1>
 
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedCar(null)
-              setShowAddForm(true)
-            }}
-            className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
-          >
-            <Plus size={18} />
-            Add
-          </button>
+          {permissions?.canWrite && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedCar(null)
+                setShowAddForm(true)
+              }}
+              className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
+            >
+              <Plus size={18} />
+              Add
+            </button>
+          )}
         </div>
       </header>
 
@@ -220,6 +224,8 @@ export function CarsPage() {
                   setSelectedCar(car)
                   setShowAddForm(true)
                 }}
+                canEdit={permissions?.canWrite ?? false}
+                canDelete={permissions?.canDelete ?? false}
               />
             ))}
           </div>

@@ -8,9 +8,11 @@ import type { PaymentFormData } from '../../types/database'
 import { AddPaymentForm } from './AddPaymentForm'
 import { PaymentCard } from './PaymentCard'
 import { createPayment, deletePayment, getPayments } from './paymentsApi'
+import { usePermissions } from '../auth/usePermissions'
 
 export function PaymentsPage() {
   const queryClient = useQueryClient()
+  const { data: permissions } = usePermissions()
 
   const [showAddForm, setShowAddForm] = useState(false)
   const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null)
@@ -94,15 +96,16 @@ export function PaymentsPage() {
 
         <div className="mt-1 flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Payments</h1>
-
-          <button
-            type="button"
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
-          >
-            <Plus size={18} />
-            Add
-          </button>
+          {permissions?.canWrite && (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
+            >
+              <Plus size={18} />
+              Add
+            </button>
+          )}
         </div>
       </header>
 
@@ -177,6 +180,7 @@ export function PaymentsPage() {
                 key={payment.id}
                 payment={payment}
                 onDelete={setPaymentToDelete}
+                canDelete={permissions?.canWrite}
               />
             ))}
           </div>

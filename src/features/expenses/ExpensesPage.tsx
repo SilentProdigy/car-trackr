@@ -8,9 +8,11 @@ import type { ExpenseFormData } from '../../types/database'
 import { AddExpenseForm } from './AddExpenseForm'
 import { ExpenseCard } from './ExpenseCard'
 import { createExpense, deleteExpense, getExpenses } from './expensesApi'
+import { usePermissions } from '../auth/usePermissions'
 
 export function ExpensesPage() {
   const queryClient = useQueryClient()
+  const { data: permissions } = usePermissions()
 
   const [showAddForm, setShowAddForm] = useState(false)
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null)
@@ -89,15 +91,16 @@ export function ExpensesPage() {
 
         <div className="mt-1 flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Expenses</h1>
-
-          <button
-            type="button"
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
-          >
-            <Plus size={18} />
-            Add
-          </button>
+          {permissions?.canWrite && (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-[#1f3d32]"
+            >
+              <Plus size={18} />
+              Add
+            </button>
+          )}
         </div>
       </header>
 
@@ -172,6 +175,8 @@ export function ExpensesPage() {
                 key={expense.id}
                 expense={expense}
                 onDelete={setExpenseToDelete}
+                canEdit={permissions?.canWrite}
+                canDelete={permissions?.canWrite}
               />
             ))}
           </div>

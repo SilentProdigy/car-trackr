@@ -9,12 +9,16 @@ type BookingCardProps = {
   booking: Booking
   onDelete: (bookingId: string) => void
   onUpdateStatus: (bookingId: string, status: BookingStatus) => void
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export function BookingCard({
   booking,
   onDelete,
   onUpdateStatus,
+  canEdit,
+  canDelete
 }: BookingCardProps) {
   return (
     <article className="rounded-[1.75rem] bg-white p-5 shadow-sm">
@@ -91,15 +95,17 @@ export function BookingCard({
           {booking.notes}
         </p>
       )}
-
-      <button
-        type="button"
-        onClick={() => onDelete(booking.id)}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
-      >
-        <Trash2 size={16} />
-        Delete Booking
-      </button>
+      {canDelete && (
+        <button
+          type="button"
+          onClick={() => onDelete(booking.id)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+        >
+          <Trash2 size={16} />
+          Delete Booking
+        </button>
+      )}
+      
     </article>
   )
 }
