@@ -13,6 +13,7 @@ export type AdminBusiness = {
   suspended_at: string | null
   suspension_reason: string | null
   created_at: string
+  deleted_at: string | null
   profiles?: {
     id: string
     full_name: string | null
@@ -25,6 +26,7 @@ export type AdminProfile = {
   full_name: string | null
   role: string
   created_at: string
+  deleted_at: string | null
 }
 
 export async function getAdminStats() {
@@ -37,8 +39,8 @@ export async function getAdminStats() {
     paymentsResult,
     expensesResult,
   ] = await Promise.all([
-    supabase.from('businesses').select('*'),
-    supabase.from('profiles').select('*'),
+    supabase.from('businesses').select('*').is('deleted_at', null),
+supabase.from('profiles').select('*').is('deleted_at', null),
     supabase.from('cars').select('*').is('deleted_at', null),
     supabase.from('customers').select('*').is('deleted_at', null),
     supabase.from('bookings').select('*').is('deleted_at', null),
@@ -85,10 +87,11 @@ export async function getAdminStats() {
 }
 
 export async function getAdminBusinesses(): Promise<AdminBusiness[]> {
-  const { data, error } = await supabase
-    .from('businesses')
-    .select('*')
-    .order('created_at', { ascending: false })
+ const { data, error } = await supabase
+  .from('businesses')
+  .select('*')
+  .is('deleted_at', null)
+  .order('created_at', { ascending: false })
 
   if (error) {
     throw error
@@ -98,10 +101,11 @@ export async function getAdminBusinesses(): Promise<AdminBusiness[]> {
 
   const ownerIds = businesses.map((business) => business.owner_id)
 
-  const { data: profiles, error: profilesError } = await supabase
-    .from('profiles')
-    .select('id, full_name, role')
-    .in('id', ownerIds)
+ const { data: profiles, error: profilesError } = await supabase
+  .from('profiles')
+  .select('id, full_name, role')
+  .in('id', ownerIds)
+  .is('deleted_at', null)
 
   if (profilesError) {
     throw profilesError
@@ -118,13 +122,14 @@ export async function getAdminProfiles(): Promise<AdminProfile[]> {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
+    .neq('role', 'super_admin')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
 
   if (error) throw error
 
   return data ?? []
 }
-
 export async function updateBusinessStatus({
   businessId,
   status,
@@ -178,6 +183,30 @@ export async function updateProfileRole({
       role,
     })
     .eq('id', profileId)
+
+  if (error) throw error
+}
+
+export async function softDeleteBusiness(businessId: string) {
+  const { error } = await supabase
+    .from('businesses')
+    .update({
+      deleted_at: new Date().toISOString(),
+      status: 'inactive',
+    })
+    .eq('id', businessId)
+
+  if (error) throw error
+}
+
+export async function softDeleteProfile(profileId: string) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      deleted_at: new Date().toISOString(),
+    })
+    .eq('id', profileId)
+    .neq('role', 'super_admin')
 
   if (error) throw error
 }

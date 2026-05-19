@@ -10,14 +10,21 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { BottomNav } from '../../components/layout/BottomNav'
+import { AdminBottomNav as BottomNav } from '../../components/layout/AdminBottomNav'
 import { getAdminStats } from './superAdminApi'
+import { enableAdminBusinessAccess } from '../../lib/accessMode'
+import { useEffect } from 'react'
+import { disableAdminBusinessAccess } from '../../lib/accessMode'
 
 export function SuperAdminDashboardPage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['super-admin-stats'],
     queryFn: getAdminStats,
   })
+
+  useEffect(() => {
+    disableAdminBusinessAccess()
+  }, [])
 
   return (
     <main className="min-h-screen bg-[#f6f8f7] pb-24">
@@ -108,7 +115,16 @@ export function SuperAdminDashboardPage() {
                 <AdminLink to="/admin/businesses" label="Manage Businesses" />
                 <AdminLink to="/admin/users" label="Manage User Profiles" />
                 <AdminLink to="/activity-logs" label="View Activity Logs" />
-                <AdminLink to="/dashboard" label="Go to Business Dashboard" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    enableAdminBusinessAccess()
+                    window.location.href = '/dashboard'
+                  }}
+                  className="rounded-2xl bg-[#1f3d32] px-4 py-4 text-left text-sm font-bold text-white"
+                >
+                  Go to Business Dashboard
+                </button>
               </div>
             </section>
           </>

@@ -1,6 +1,8 @@
 import { Activity, Clock3 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { AdminBottomNav } from '../../components/layout/AdminBottomNav'
 import { BottomNav } from '../../components/layout/BottomNav'
+import { usePermissions } from '../auth/usePermissions'
 import { getActivityLogs } from './activityApi'
 
 export function ActivityLogsPage() {
@@ -8,6 +10,8 @@ export function ActivityLogsPage() {
     queryKey: ['activity-logs'],
     queryFn: getActivityLogs,
   })
+
+  const { data: permissions } = usePermissions()
 
   return (
     <main className="min-h-screen bg-[#f6f8f7] pb-24">
@@ -78,8 +82,7 @@ export function ActivityLogsPage() {
           </div>
         </div>
       </section>
-
-      <BottomNav />
+      {permissions?.isSuperAdmin ? <AdminBottomNav /> : <BottomNav />}
     </main>
   )
 }

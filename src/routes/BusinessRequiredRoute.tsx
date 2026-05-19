@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getCurrentBusiness } from '../lib/business'
 import { useAuth } from '../features/auth/useAuth'
 import { usePermissions } from '../features/auth/usePermissions'
+import { hasAdminBusinessAccess } from '../lib/accessMode'
 
 type BusinessRequiredRouteProps = {
   children: ReactNode
@@ -41,13 +42,21 @@ export function BusinessRequiredRoute({
     return <Navigate to="/login" replace />
   }
 
-  if (permissions?.isSuperAdmin && !business) {
-    return <Navigate to="/admin" replace />
-    }
-
+  if (permissions?.isSuperAdmin) {
     if (!business) {
-    return <Navigate to="/business-setup" replace />
+      return <Navigate to="/admin" replace />
     }
 
-    return children
+    if (!hasAdminBusinessAccess()) {
+      return <Navigate to="/admin" replace />
+    }
+
+      return children
+  }
+
+  if (!business) {
+    return <Navigate to="/business-setup" replace />
+  }
+
+  return children
 }

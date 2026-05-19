@@ -1,14 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Building2, ShieldCheck } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BottomNav } from '../../components/layout/BottomNav'
+import { AdminBottomNav } from '../../components/layout/AdminBottomNav'
 import { Toast, type ToastType } from '../../components/ui/Toast'
 import {
   getAdminBusinesses,
+  softDeleteBusiness,
   updateBusinessStatus,
   updateBusinessVerification,
 } from './superAdminApi'
 import { ReasonModal } from '../../components/ui/ReasonModal'
+import { disableAdminBusinessAccess } from '../../lib/accessMode'
+import { ConfirmModal } from '../../components/ui/ConfirmModal'
 
 export function AdminBusinessesPage() {
   const queryClient = useQueryClient()
@@ -22,6 +25,33 @@ export function AdminBusinessesPage() {
     id: string
     name: string
     } | null>(null)
+
+  const [businessToDelete, setBusinessToDelete] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+
+  const deleteMutation = useMutation({
+    mutationFn: softDeleteBusiness,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-businesses'] })
+      queryClient.invalidateQueries({ queryKey: ['super-admin-stats'] })
+
+      setBusinessToDelete(null)
+
+      setToast({
+        type: 'success',
+        message: 'Business deleted successfully.',
+      })
+    },
+    onError: (error) => {
+      setToast({
+        type: 'error',
+        message:
+          error instanceof Error ? error.message : 'Failed to delete business.',
+      })
+    },
+  })
 
   const {
     data: businesses = [],
@@ -64,6 +94,10 @@ export function AdminBusinessesPage() {
       })
     },
   })
+
+  useEffect(() => {
+    disableAdminBusinessAccess()
+  }, [])
 
   return (
     <main className="min-h-screen bg-[#f6f8f7] pb-24">
@@ -165,6 +199,19 @@ export function AdminBusinessesPage() {
                     Suspend
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() =>
+                  setBusinessToDelete({
+                    id: business.id,
+                    name: business.business_name,
+                  })
+                }
+                className="col-span-2 rounded-2xl bg-red-700 px-4 py-3 text-sm font-bold text-white"
+              >
+                Delete Business
+              </button>
             </div>
           </article>
         ))}
@@ -234,8 +281,18 @@ export function AdminBusinessesPage() {
             )
         }}
         />
-
-      <BottomNav />
+      {businessToDelete && (
+        <ConfirmModal
+          title="Delete business?"
+          message={`Are you sure you want to delete "${businessToDelete.name}"? This will hide the business from the platform but keep its records in the database.`}
+          confirmLabel="Delete Business"
+          cancelLabel="Cancel"
+          loading={deleteMutation.isPending}
+          onConfirm={() => deleteMutation.mutate(businessToDelete.id)}
+          onCancel={() => setBusinessToDelete(null)}
+        />
+      )}
+      <AdminBottomNav />
     </main>
   )
 }

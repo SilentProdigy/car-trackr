@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UserRound } from 'lucide-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BottomNav } from '../../components/layout/BottomNav'
+import { AdminBottomNav } from '../../components/layout/AdminBottomNav'
 import { Toast, type ToastType } from '../../components/ui/Toast'
-import { getAdminProfiles, updateProfileRole } from './superAdminApi'
+import {
+  getAdminProfiles,
+  softDeleteProfile,
+  updateProfileRole,
+} from './superAdminApi'
+import { disableAdminBusinessAccess } from '../../lib/accessMode'
+import { ConfirmModal } from '../../components/ui/ConfirmModal'
 
 export function AdminUsersPage() {
   const queryClient = useQueryClient()
@@ -33,6 +39,39 @@ export function AdminUsersPage() {
         type: 'error',
         message:
           error instanceof Error ? error.message : 'Failed to update role.',
+      })
+    },
+  })
+
+  useEffect(() => {
+    disableAdminBusinessAccess()
+  }, [])
+
+  const [profileToDelete, setProfileToDelete] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+
+  const deleteProfileMutation = useMutation({
+    mutationFn: softDeleteProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-profiles'] })
+      queryClient.invalidateQueries({ queryKey: ['super-admin-stats'] })
+
+      setProfileToDelete(null)
+
+      setToast({
+        type: 'success',
+        message: 'User profile deleted successfully.',
+      })
+    },
+    onError: (error) => {
+      setToast({
+        type: 'error',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to delete user profile.',
       })
     },
   })
@@ -94,6 +133,19 @@ export function AdminUsersPage() {
                 <option value="super_admin">Super Admin</option>
               </select>
             </label>
+
+            <button
+              type="button"
+              onClick={() =>
+                setProfileToDelete({
+                  id: profile.id,
+                  name: profile.full_name ?? profile.id,
+                })
+              }
+              className="mt-4 w-full rounded-2xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700"
+            >
+              Delete User Profile
+            </button>
           </article>
         ))}
       </section>
@@ -105,8 +157,18 @@ export function AdminUsersPage() {
           onClose={() => setToast(null)}
         />
       )}
-
-      <BottomNav />
+      {profileToDelete && (
+        <ConfirmModal
+          title="Delete user profile?"
+          message={`Are you sure you want to delete "${profileToDelete.name}"? This will hide the user profile from the app but will not delete the Supabase Auth account.`}
+          confirmLabel="Delete Profile"
+          cancelLabel="Cancel"
+          loading={deleteProfileMutation.isPending}
+          onConfirm={() => deleteProfileMutation.mutate(profileToDelete.id)}
+          onCancel={() => setProfileToDelete(null)}
+        />
+      )}
+      <AdminBottomNav />
     </main>
   )
 }
