@@ -1,9 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
-  Activity,
   Building2,
   LayoutDashboard,
-  Settings,
   UserRound,
 } from 'lucide-react'
 
