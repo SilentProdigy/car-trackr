@@ -47,6 +47,7 @@ import { AdminUsersPage } from './features/super-admin/AdminUsersPage'
 import { usePermissions } from './features/auth/usePermissions'
 import { ChooseAccessPage } from './features/auth/ChooseAccessPage'
 import { AppEntryRoute } from './routes/AppEntryRoute'
+import { LandingPage } from './features/landing/LandingPage'
 
 function SettingsPage() {
 
@@ -208,7 +209,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AppEntryRoute />} />
+        <Route path="/app" element={<AppEntryRoute />} />
+        <Route path="/" element={<LandingPage />} />
+
 
         <Route
           path="/choose-access"
